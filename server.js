@@ -1,13 +1,15 @@
 const express = require('express'), http = require('http'), crypto = require('crypto');
 const { Server } = require('socket.io');
-const Database = require('better-sqlite3');
+const { DatabaseSync } = require('node:sqlite');
 
 const RATE = +process.env.RATE_PER_MIN || 1000;      // Ar par minute
 const TICK = 6;                                      // facturation toutes les 6 s
 const COST = Math.round(RATE * TICK / 60);           // 100 Ar / 6 s
 const ADMIN_KEY = process.env.ADMIN_KEY || '';
 
-const db = new Database(process.env.DB_PATH || 'antso.db');
+const db = new DatabaseSync(process.env.DB_PATH || 'antso.db');
+const tx = (f) => { db.exec('BEGIN'); try { const r = f(); db.exec('COMMIT'); return r; } catch (e) { db.exec('ROLLBACK'); throw e; } };
+process.on('uncaughtException', (e) => console.error('Erreur:', e));
 db.exec(`
 create table if not exists users(id integer primary key, email text unique, phone text unique, name text,
   pass text, bio text default '', photo text default '', balance integer default 0, verified integer default 0,
@@ -99,24 +101,24 @@ app.post('/api/deposit', auth, (req, res) => {
 app.post('/api/withdraw', auth, (req, res) => {
   const a = Math.floor(+req.body.amount), num = normPhone(req.body.number);
   if (!(a >= 5000) || !METHODS.includes(req.body.method) || !num) return res.json({ error: 'Farafahakeliny 5000 Ar, ary laharana Mobile Money marina' });
-  const ok = db.transaction(() => {
+  const ok = tx(() => {
     if (db.prepare('update users set balance=balance-? where id=? and balance>=?').run(a, req.u.id, a).changes === 0) return false;
     db.prepare('insert into tx(user_id,type,amount,method,ref,status,ts) values(?,?,?,?,?,?,?)').run(req.u.id, 'withdraw', a, req.body.method, num, 'pending', Date.now());
     return true;
-  })();
+  });
   res.json(ok ? { ok: true } : { error: 'Tsy ampy ny solde' });
 });
 app.get('/api/admin/pending', adminOnly, (req, res) => res.json(db.prepare(
   "select t.*, u.phone as uphone, u.name from tx t join users u on u.id=t.user_id where t.status='pending' order by t.id").all()));
 app.post('/api/admin/decide', adminOnly, (req, res) => {
-  db.transaction(() => {
+  tx(() => {
     const t = db.prepare("select * from tx where id=? and status='pending'").get(req.body.id);
     if (!t) return;
     const ok = !!req.body.ok;
     if (t.type === 'deposit' && ok) db.prepare('update users set balance=balance+? where id=?').run(t.amount, t.user_id);
     if (t.type === 'withdraw' && !ok) db.prepare('update users set balance=balance+? where id=?').run(t.amount, t.user_id);
     db.prepare('update tx set status=? where id=?').run(ok ? 'done' : 'rejected', t.id);
-  })();
+  });
   res.json({ ok: true });
 });
 
