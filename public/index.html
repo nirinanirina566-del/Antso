@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="mg"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Antso Video</title>
+<style>
+:root{--bg:#f3f6f4;--card:#fff;--ink:#14302b;--mut:#5d7570;--acc:#0b7a6b;--red:#c0392b;--line:#d5e0dc}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1a18;--card:#152724;--ink:#e6f1ee;--mut:#93aca6;--acc:#37b9a6;--line:#27403b}}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+main{max-width:560px;margin:0 auto;padding:1rem}
+h1,h2{margin:.2rem 0 .8rem}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:.7rem 1rem;background:var(--acc);color:#fff;font-weight:600}
+button.g{background:transparent;color:var(--ink);border:1px solid var(--line)}button.r{background:var(--red)}
+input,select,textarea{font:inherit;width:100%;padding:.7rem;margin:.3rem 0;border-radius:10px;border:1px solid var(--line);background:var(--card);color:inherit}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem;margin:.8rem 0}
+nav{display:flex;gap:.4rem;margin:.8rem 0}nav button{flex:1}
+.err{color:var(--red);min-height:1.3em}.mut{color:var(--mut)}
+.av{width:72px;height:72px;border-radius:50%;object-fit:cover;background:var(--line)}
+.row{display:flex;gap:.6rem;align-items:center}
+#msgs{height:300px;overflow:auto;display:flex;flex-direction:column;gap:.3rem}
+.b{max-width:80%;padding:.5rem .8rem;border-radius:14px;background:var(--line);word-break:break-word}.b.me{align-self:flex-end;background:var(--acc);color:#fff}
+#call{position:fixed;inset:0;background:#050d0c;display:none;flex-direction:column;z-index:9;color:#fff}
+#rv{flex:1;width:100%;min-height:0;object-fit:cover}#lv{position:absolute;right:10px;top:10px;width:110px;border-radius:10px}
+#ci{padding:.8rem;text-align:center}#cb{display:flex;justify-content:center;gap:.6rem;padding:.8rem}
+.hide{display:none}
+</style></head><body><main>
+
+<section id="auth">
+  <h1>Antso Video</h1>
+  <div class="card" id="fLogin">
+    <h2>Midira</h2>
+    <input id="le" type="email" placeholder="E-mail" autocomplete="email">
+    <input id="lp" type="password" placeholder="Teny miafina" autocomplete="current-password">
+    <button id="bl">Midira</button> <button class="g" id="toReg">Mamorona kaonty</button>
+  </div>
+  <div class="card hide" id="fReg">
+    <h2>Fisoratana anarana</h2>
+    <input id="rn" placeholder="Anarana feno">
+    <input id="re" type="email" placeholder="E-mail">
+    <input id="rt" type="tel" placeholder="Laharana finday WhatsApp (+261...)">
+    <input id="rp" type="password" placeholder="Teny miafina (8+ tarehintsoratra)" autocomplete="new-password">
+    <button id="br">Alefaso ny kaody WhatsApp</button> <button class="g" id="toLog">Efa manana kaonty</button>
+  </div>
+  <div class="card hide" id="fVer">
+    <h2>Kaody WhatsApp</h2><p class="mut">Nalefa tany amin'ny <b id="vp"></b> ny kaody 6 isa.</p>
+    <input id="vc" inputmode="numeric" maxlength="6" placeholder="000000">
+    <button id="bv">Hamarino</button>
+  </div>
+  <p class="err" id="aerr"></p>
+</section>
+
+<section id="app" class="hide">
+  <div class="row"><b id="hn" style="flex:1"></b><b id="hb"></b><button class="g" id="out">Hiala</button></div>
+  <nav><button id="n1">Mombamomba</button><button class="g" id="n2">Vola</button><button class="g" id="n3">Hafatra / Antso</button></nav>
+
+  <div id="p1" class="card">
+    <div class="row"><img id="ph" class="av" alt="Sary"><div><input id="pf" type="file" accept="image/*"></div></div>
+    <input id="pn" placeholder="Anarana"><textarea id="pb" rows="3" placeholder="Mombamomba anao"></textarea>
+    <button id="ps">Tahiry</button> <span class="err" id="pe"></span>
+    <p class="mut" id="pi"></p>
+  </div>
+
+  <div id="p2" class="card hide">
+    <h2>Solde: <span id="wb"></span></h2>
+    <p class="mut" id="wr"></p>
+    <h3>Depot</h3>
+    <p class="mut">Alefaso ny vola amin'ny laharana Mobile Money <b id="shop"></b>, avy eo ampidiro eto ny laharana fanamarinana (ref).</p>
+    <select id="dm"><option>MVola</option><option>Orange Money</option><option>Airtel Money</option></select>
+    <input id="da" type="number" placeholder="Vola (Ar)"><input id="dr" placeholder="Ref. transaction">
+    <button id="bd">Alefa ny fangatahana depot</button>
+    <h3>Retrait</h3>
+    <select id="wm"><option>MVola</option><option>Orange Money</option><option>Airtel Money</option></select>
+    <input id="wa" type="number" placeholder="Vola (Ar, 5000 farafahakeliny)"><input id="wn" placeholder="Laharana Mobile Money (+261...)">
+    <button id="bw">Alefa ny retrait</button>
+    <p class="err" id="we"></p>
+    <h3>Tantara</h3><div id="txs"></div>
+  </div>
+
+  <div id="p3" class="card hide">
+    <div class="row"><input id="fp" placeholder="Laharana (+261...)"><button id="ff">Hitady</button></div>
+    <div id="chat" class="hide">
+      <div class="row"><img id="cp" class="av" style="width:44px;height:44px" alt=""><b id="cn" style="flex:1"></b><button id="bc">Antso video</button></div>
+      <div id="msgs"></div>
+      <div class="row"><input id="mi" placeholder="Soraty ny hafatra"><button id="ms">Alefa</button></div>
+    </div>
+    <p class="err" id="ce"></p>
+  </div>
+</section></main>
+
+<div id="call">
+  <video id="rv" autoplay playsinline></video><video id="lv" autoplay playsinline muted></video>
+  <div id="ci"></div>
+  <div id="cb"><button id="ca" class="hide">Ekeo</button><button id="mu" class="g hide">Mikrô</button><button id="ce2" class="r">Hamarana</button></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SHOP_NUMBER='034 00 000 00'; // ALOHA: soloy ny laharanao Mobile Money
+const ar=n=>Number(n).toLocaleString('fr-FR')+' Ar';
+let tok=localStorage.tok||'', me, socket, peer, pc, local, timerInt, pendingPhone;
+const api=(p,b)=>fetch('/api/'+p,{method:b?'POST':'GET',headers:{'content-type':'application/json',authorization:tok},body:b?JSON.stringify(b):undefined}).then(r=>r.json());
+const show=(ids,on)=>ids.forEach(i=>$(i).classList.toggle('hide',!on));
+
+// ---- Auth ----
+$('toReg').onclick=()=>{show(['fLogin'],0);show(['fReg'],1)};$('toLog').onclick=()=>{show(['fReg','fVer'],0);show(['fLogin'],1)};
+$('bl').onclick=async()=>{const r=await api('login',{email:$('le').value,password:$('lp').value});
+  if(r.needVerify){pendingPhone=r.needVerify;$('vp').textContent=pendingPhone;show(['fLogin'],0);show(['fVer'],1);$('aerr').textContent=r.error;return}
+  r.token?(tok=localStorage.tok=r.token,boot()):$('aerr').textContent=r.error};
+$('br').onclick=async()=>{const r=await api('register',{name:$('rn').value,email:$('re').value,phone:$('rt').value,password:$('rp').value});
+  if(r.error)return $('aerr').textContent=r.error;$('aerr').textContent='';pendingPhone=r.phone;$('vp').textContent=r.phone;show(['fReg'],0);show(['fVer'],1)};
+$('bv').onclick=async()=>{const r=await api('verify',{phone:pendingPhone,code:$('vc').value});
+  r.token?(tok=localStorage.tok=r.token,boot(true)):$('aerr').textContent=r.error};
+$('out').onclick=()=>{localStorage.removeItem('tok');location.reload()};
+
+// ---- App ----
+function tab(n){[1,2,3].forEach(i=>{show(['p'+i],i===n);$('n'+i).classList.toggle('g',i!==n)});if(n===2)loadTx()}
+[1,2,3].forEach(i=>$('n'+i).onclick=()=>tab(i));
+async function refresh(){me=await api('me');if(me.error){localStorage.removeItem('tok');return location.reload()}
+  $('hn').textContent=me.name;$('hb').textContent=ar(me.balance);$('wb').textContent=ar(me.balance);
+  $('wr').textContent='Tarif antso: '+ar(me.rate)+' isaky ny minitra (alaina isaky ny 6 segondra).';
+  $('ph').src=me.photo||'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>';$('pn').value=me.name;$('pb').value=me.bio||'';$('pi').textContent=me.email+' · '+me.phone}
+async function boot(first){show(['auth'],0);show(['app'],1);$('shop').textContent=SHOP_NUMBER;await refresh();tab(first?1:3);connect();
+  if(first&&!me.photo)$('pe').textContent='Ampio ny sary mombamomba anao aloha.'}
+$('pf').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;
+  const s=Math.min(img.width,img.height);c.getContext('2d').drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,256,256);$('ph').src=c.toDataURL('image/jpeg',.8);$('ph').dataset.new=1};img.src=URL.createObjectURL(f)};
+$('ps').onclick=async()=>{const r=await api('profile',{name:$('pn').value,bio:$('pb').value,photo:$('ph').dataset.new?$('ph').src:undefined});
+  $('pe').textContent=r.error||'Voatahiry';if(!r.error){$('ph').dataset.new='';refresh()}};
+
+async function loadTx(){const t=await api('tx');const L={deposit:'Depot',withdraw:'Retrait',call:'Antso'},S={pending:'miandry',done:'vita',rejected:'nolavina'};
+  $('txs').innerHTML=t.map(x=>`<p>${L[x.type]} · ${ar(x.amount)} · <span class="mut">${S[x.status]} · ${new Date(x.ts).toLocaleString()}</span></p>`).join('')||'<p class="mut">Mbola tsy misy.</p>'}
+$('bd').onclick=async()=>{const r=await api('deposit',{amount:$('da').value,method:$('dm').value,ref:$('dr').value});$('we').textContent=r.error||'Voaray ny fangatahana. Hampidirina ny solde rehefa voamarina.';if(!r.error)loadTx()};
+$('bw').onclick=async()=>{const r=await api('withdraw',{amount:$('wa').value,method:$('wm').value,number:$('wn').value});$('we').textContent=r.error||'Voaray ny fangatahana retrait.';if(!r.error){refresh();loadTx()}};
+
+// ---- Chat ----
+let other;
+function bubble(m){const d=document.createElement('div');d.className='b'+(m.from_id===me.id?' me':'');d.textContent=m.body;$('msgs').appendChild(d);$('msgs').scrollTop=1e9}
+$('ff').onclick=async()=>{const u=await api('user/'+encodeURIComponent($('fp').value));if(u.error){$('ce').textContent=u.error;return}
+  $('ce').textContent='';other=u;show(['chat'],1);$('cn').textContent=u.name;$('cp').src=u.photo||'';$('msgs').innerHTML='';(await api('msgs/'+u.id)).forEach(bubble)};
+const send=()=>{if($('mi').value.trim()&&other){socket.emit('msg',{to:other.id,body:$('mi').value});$('mi').value=''}};
+$('ms').onclick=send;$('mi').onkeydown=e=>e.key==='Enter'&&send();
+
+// ---- Antso video ----
+const cfg={iceServers:[{urls:'stun:stun.l.google.com:19302'}]}; // ampio TURN eto raha ilaina
+const reasons={solde:'Lany ny solde.',indisponible:'Tsy afaka miantso ankehitriny ilay olona.',ended:'Vita ny antso.'};
+async function media(){local=await navigator.mediaDevices.getUserMedia({video:true,audio:true});$('lv').srcObject=local}
+function mkpc(id){peer=id;pc=new RTCPeerConnection(cfg);local.getTracks().forEach(t=>pc.addTrack(t,local));
+  pc.onicecandidate=e=>e.candidate&&socket.emit('signal',{to:id,data:{candidate:e.candidate}});pc.ontrack=e=>$('rv').srcObject=e.streams[0]}
+function overlay(txt,acc){$('call').style.display='flex';$('ci').textContent=txt;show(['ca'],acc);show(['mu'],0)}
+function closeCall(reason){clearInterval(timerInt);if(pc)pc.close();pc=null;if(local)local.getTracks().forEach(t=>t.stop());local=null;
+  $('call').style.display='none';$('rv').srcObject=null;if(reason)alert(reasons[reason]||reason);refresh()}
+$('bc').onclick=async()=>{try{await media()}catch(e){return alert('Avelao ny camera/mikrô')}overlay('Miantso '+other.name+'…',0);socket.emit('call:invite',{to:other.id})};
+$('ca').onclick=async()=>{try{await media()}catch(e){socket.emit('call:end');return}mkpc(incoming);show(['ca'],0);show(['mu'],1);overlay('Mampifandray…',0);socket.emit('call:accept')};
+$('ce2').onclick=()=>socket.emit('call:end');
+$('mu').onclick=()=>{const t=local.getAudioTracks()[0];t.enabled=!t.enabled;$('mu').textContent=t.enabled?'Mikrô':'Mikrô (tsy mandeha)'};
+let incoming;
+function connect(){socket=io({auth:{token:tok}});
+  socket.on('msg',m=>{if(other&&(m.from_id===other.id||m.to_id===other.id))bubble(m)});
+  socket.on('balance',b=>{me.balance=b;$('hb').textContent=ar(b)});
+  socket.on('call:incoming',({from})=>{incoming=from.id;overlay(from.name+' miantso anao…',1)});
+  socket.on('call:start',async({peer:p})=>{let t0=Date.now();show(['mu'],1);show(['ca'],0);
+    timerInt=setInterval(()=>{const s=Math.floor((Date.now()-t0)/1000);$('ci').textContent='Antso mandeha · '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0')+' · Solde: '+$('hb').textContent},1000);
+    if(!pc){mkpc(p);const o=await pc.createOffer();await pc.setLocalDescription(o);socket.emit('signal',{to:p,data:{sdp:pc.localDescription}})}});
+  socket.on('signal',async({from,data})=>{if(!pc)return;if(data.sdp){await pc.setRemoteDescription(data.sdp);
+    if(data.sdp.type==='offer'){await pc.setLocalDescription(await pc.createAnswer());socket.emit('signal',{to:from,data:{sdp:pc.localDescription}})}}
+    else if(data.candidate)try{await pc.addIceCandidate(data.candidate)}catch(e){}});
+  socket.on('call:ended',({reason})=>closeCall(reason))}
+if(tok)boot();
+</script></body></html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html><html lang="mg"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin</title>
+<body style="font-family:system-ui;max-width:700px;margin:2rem auto;padding:0 1rem">
+<h2>Fangatahana miandry</h2>
+<input id="k" type="password" placeholder="ADMIN_KEY"> <button onclick="load()">Haka</button>
+<div id="l"></div>
+<script>
+const H=()=>({'x-admin-key':k.value,'content-type':'application/json'});
+async function load(){const r=await fetch('/api/admin/pending',{headers:H()});const d=await r.json();
+l.innerHTML=Array.isArray(d)?d.map(t=>`<p><b>${t.type==='deposit'?'DEPOSIT':'RETRAIT'}</b> ${t.amount} Ar - ${t.method} - ref/laharana: ${t.ref}<br>${t.name} (${t.uphone})
+<button onclick="go(${t.id},1)">Eken'ny</button> <button onclick="go(${t.id},0)">Laviana</button></p>`).join('')||'Tsy misy.':'Tsy navela';}
+async function go(id,ok){await fetch('/api/admin/decide',{method:'POST',headers:H(),body:JSON.stringify({id,ok})});load();}
+</script></body></html>
